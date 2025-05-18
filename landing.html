@@ -3,13 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Landing Page</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>RosyTasks</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <div class="landing-container">
-    <h1>Welcome to the Landing Page!</h1>
-    <p>Login berhasil. Selamat datang!</p>
+<body class="bg-pink-100 h-screen flex flex-col justify-center items-center">
+
+  <h1 class="text-4xl font-bold text-pink-600 mb-2">RosyTasks</h1>
+  <p class="text-gray-700 mb-8 text-center">Organize your day with a splash of pink!</p>
+
+  <div class="bg-white rounded-lg shadow-md p-6 w-96">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">My To-Do List</h2>
+    <p class="text-sm text-gray-600 mb-4">Add, manage, and complete your tasks.</p>
+
+    <div class="flex space-x-2 mb-4">
+      <input id="taskInput" type="text" placeholder="What needs to be done?" class="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:border-pink-300">
+      <button onclick="addTask()" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">Add Task</button>
+    </div>
+
+    <ul id="taskList" class="space-y-2">
+      <!-- Tasks will appear here -->
+    </ul>
+
+    <p id="emptyMessage" class="text-sm text-gray-500 text-center mt-4">No tasks yet. Add one above!</p>
   </div>
+
+  <footer class="mt-8 text-sm text-gray-500">
+    © 2025 RosyTasks. All rights reserved.
+  </footer>
+
+  <script>
+    let tasks = [];
+
+    // Load tasks from localStorage
+    window.onload = function () {
+      const storedTasks = localStorage.getItem("rosyTasks");
+      if (storedTasks) {
+        tasks = JSON.parse(storedTasks);
+        tasks.forEach(renderTask);
+        toggleEmptyMessage();
+      }
+    };
+
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const taskText = input.value.trim();
+
+      if (taskText !== "") {
+        const task = { text: taskText, completed: false };
+        tasks.push(task);
+        saveTasks();
+        renderTask(task);
+        input.value = "";
+        toggleEmptyMessage();
+      }
+    }
+
+    function renderTask(task) {
+      const taskList = document.getElementById("taskList");
+
+      const li = document.createElement("li");
+      li.className = "flex justify-between items-center bg-pink-50 px-4 py-2 rounded";
+
+      const span = document.createElement("span");
+      span.textContent = task.text;
+      span.className = task.completed ? "line-through text-gray-400 cursor-pointer" : "cursor-pointer";
+      span.onclick = () => {
+        task.completed = !task.completed;
+        saveTasks();
+        span.className = task.completed ? "line-through text-gray-400 cursor-pointer" : "cursor-pointer";
+      };
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "✕";
+      deleteBtn.className = "text-pink-500 hover:text-red-500 font-bold";
+      deleteBtn.onclick = () => {
+        taskList.removeChild(li);
+        tasks = tasks.filter(t => t !== task);
+        saveTasks();
+        toggleEmptyMessage();
+      };
+
+      li.appendChild(span);
+      li.appendChild(deleteBtn);
+      taskList.appendChild(li);
+    }
+
+    function saveTasks() {
+      localStorage.setItem("rosyTasks", JSON.stringify(tasks));
+    }
+
+    function toggleEmptyMessage() {
+      const emptyMessage = document.getElementById("emptyMessage");
+      emptyMessage.style.display = tasks.length === 0 ? "block" : "none";
+    }
+  </script>
+
 </body>
 </html>
